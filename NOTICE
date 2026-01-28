@@ -1,0 +1,9 @@
+Rhizon Runtime
+Copyright 2026 Rhizon
+
+This product includes software developed at Rhizon (https://rhizon.io).
+
+The Rhizon Runtime is a deterministic, event-driven runtime for orchestrating 
+autonomous components in distributed systems.
+
+For more information, visit: https://github.com/rhizon/rhizon-runtime

@@ -1,0 +1,48 @@
+version: 1.0
+status: approved
+title: Add Distributed Bus (NATS) Phase 0.12
+description: >
+  Implement a distributed EventBus and Router using NATS Core (JetStream optional/later).
+  Enables multi-process agent communication and event routing with strict idempotency.
+
+tasks:
+  - id: t1-add-nats-deps
+    title: Add NATS dependencies
+    status: pending
+    description: Add `nats-py` to pyproject.toml.
+
+  - id: t2-nats-bus
+    title: Implement NatsEventBus
+    status: pending
+    description: >
+      Create `src/meshforge_runtime/adapters/nats_bus.py`.
+      Must implement `EventBus` protocol.
+      Publish events to subjects `evt.{tenant}.{workspace}.{domain}.{name}`.
+      Must support at-least-once delivery semantics (client side retry if needed, though Core NATS is at-most-once, we rely on Engine idempotency for safety on replays).
+
+  - id: t3-nats-router
+    title: Implement NatsRouter
+    status: pending
+    description: >
+      Create `src/meshforge_runtime/adapters/nats_router.py`.
+      Must implement `Router` protocol.
+      Route commands to subjects `cmd.{tenant}.{workspace}.{target_agent}.{name}`.
+
+  - id: t4-integration-test
+    title: Distributed Integration Test
+    status: pending
+    description: >
+      Create `tests/test_distributed_nats.py`.
+      Must start a local NATS server (subprocess).
+      Run 2 isolated `RuntimeEngine` instances.
+      Verify Cmd -> A -> B -> Evt -> A flow.
+      Verify Idempotency (duplicate commands).
+      Verify Ordering independence (state consistency).
+
+requirements:
+  - "MUST implement EventBus and Router protocols."
+  - "MUST use NATS Core (pub/sub)."
+  - "MUST follow routing pattern: evt.{tenant}.{workspace}.{domain}.{name} and cmd.{tenant}.{workspace}.{target}.{name}."
+  - "MUST rely on Engine idempotency_key for safety."
+  - "MUST NOT break existing InMemory implementations."
+  - "MUST include tests that spin up ephemeral NATS server."

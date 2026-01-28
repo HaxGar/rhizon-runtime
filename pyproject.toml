@@ -1,0 +1,32 @@
+[project]
+name = "rhizon-runtime"
+version = "0.15.0"
+description = "The root of deterministic systems - Event-driven runtime for orchestrating autonomous components"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "pydantic>=2.5.0",
+    "opentelemetry-api>=1.20.0",
+    "opentelemetry-sdk>=1.20.0",
+    "opentelemetry-exporter-otlp>=1.20.0",
+    "nats-py>=2.6.0",
+]
+
+[project.optional-dependencies]
+test = [
+    "pytest>=7.0",
+    "pytest-asyncio>=0.23.0",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/rhizon_runtime"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+norecursedirs = ["tmp_deps", "venv", ".git", "__pycache__"]
+pythonpath = ["src", "tmp_deps"]
+addopts = "-v"

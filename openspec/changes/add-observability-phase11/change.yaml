@@ -1,0 +1,33 @@
+version: 1.0
+status: proposal
+title: Add Observability Phase 0.11
+description: >
+  Instrument RuntimeEngine with OpenTelemetry (Traces & Metrics) for Phase 0.11.
+  Includes OTLP export, minimal metrics, and determinism verification.
+
+tasks:
+  - id: t1-add-dependencies
+    title: Add OpenTelemetry dependencies
+    status: pending
+    description: Update pyproject.toml with opentelemetry-api, opentelemetry-sdk, opentelemetry-exporter-otlp.
+
+  - id: t2-telemetry-manager
+    title: Create TelemetryManager
+    status: pending
+    description: Create a core/telemetry.py module to manage TracerProvider and MeterProvider setup with toggles.
+
+  - id: t3-instrument-engine
+    title: Instrument RuntimeEngine
+    status: pending
+    description: Add spans and metrics to process_event, recover, and other critical paths in RuntimeEngine.
+
+  - id: t4-test-telemetry
+    title: Add Telemetry Tests
+    status: pending
+    description: Create test_telemetry.py to verify spans are created and metrics recorded using a memory/no-op exporter. Verify determinism is unaffected.
+
+requirements:
+  - "MUST instrument RuntimeEngine.process_event with a span."
+  - "MUST record metrics: events_received_total, events_emitted_total, event_processing_duration_ms, idempotency_hits_total."
+  - "MUST NOT affect the deterministic state hash of agents."
+  - "MUST support disabling telemetry via configuration."

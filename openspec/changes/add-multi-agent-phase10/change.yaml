@@ -1,0 +1,30 @@
+id: add-multi-agent-phase10
+title: Phase 0.10 - Multi-Agent Communication
+status: implemented
+author: Cascade
+created_at: 2026-01-03
+description: |
+  Implement Multi-Agent Communication support.
+  - EventEnvelope enhancements: causation_id, correlation_id, reply_to.
+  - InProcessRouter for local engine-to-engine communication.
+  - RuntimeEngine updates to handle outgoing commands/events routing.
+  - Strict preservation of Determinism and Idempotency in cross-agent flows.
+tasks:
+  - id: update_envelope
+    title: Add causation/correlation fields to EventEnvelope
+    status: completed
+  - id: impl_router
+    title: Implement InProcessRouter
+    status: completed
+  - id: update_engine
+    title: Update RuntimeEngine for routing
+    status: completed
+  - id: test_saga
+    title: Implement Saga Test (Order -> Inventory)
+    status: completed
+  - id: verify_idempotency
+    title: Verify Cross-Agent Idempotency
+    status: completed
+  - id: update_factory_demo
+    title: Update Factory for Multi-Agent Demo
+    status: completed

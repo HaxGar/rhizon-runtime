@@ -1,0 +1,6 @@
+description: Implement NATS JetStream for durable, at-least-once messaging with strict idempotency and crash recovery.
+status: proposed
+author: Cascade
+created_at: 2026-01-04
+specs:
+  - specs/runtime-jetstream/spec.md

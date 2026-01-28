@@ -1,0 +1,24 @@
+id: add-runtime-phase07-managers-ui
+title: Runtime Phase 0.7 - Managers & UI Integration
+status: implemented
+author: Cascade
+created_at: 2026-01-03
+description: |
+  Implement generic CRUD Managers and a Runtime HTTP Gateway to enable end-to-end execution of the generated workspace.
+  Includes generic CRUD adapter, deterministic state management, and HTTP adapter for UI communication.
+tasks:
+  - id: define_crud_contracts
+    title: Define CRUD Event Contracts and State Shape
+    status: completed
+  - id: impl_generic_crud_manager
+    title: Implement GenericCRUDManagerAdapter in Runtime
+    status: completed
+  - id: impl_runtime_http_gateway
+    title: Implement Runtime HTTP Gateway (FastAPI Adapter)
+    status: completed
+  - id: update_factory_generators
+    title: Update Factory Generators (Docker Compose, UI wiring)
+    status: completed
+  - id: verify_end_to_end
+    title: Verify End-to-End Execution (Tests)
+    status: completed

@@ -1,0 +1,22 @@
+id: add-maf-adapter-phase09
+title: Phase 0.9 - MAF Adapter Integration
+status: implemented
+author: Cascade
+created_at: 2026-01-03
+description: |
+  Implement support for external agent frameworks (specifically MAF) via an optional Adapter.
+  Ensure Strict Separation: Core Runtime MUST NOT import framework libraries.
+  The Adapter implements the AgentRuntimeAdapter protocol and bridges to the framework.
+tasks:
+  - id: verify_core_purity
+    title: Verify Core has no framework imports
+    status: completed
+  - id: impl_maf_adapter
+    title: Implement MAFAdapter (V0)
+    status: completed
+  - id: update_factory_maf
+    title: Update Factory with 'python-fastapi-maf' profile
+    status: completed
+  - id: test_maf_integration
+    title: Test MAF Adapter Contract & Replay
+    status: completed
