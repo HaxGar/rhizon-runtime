@@ -1,6 +1,5 @@
 from typing import Protocol, List, Dict, Any, Optional
 from pydantic import BaseModel, Field
-from dataclasses import field
 from enum import Enum
 from rhizon_runtime.core.models import EventEnvelope
 
@@ -95,10 +94,15 @@ class EventStoreAdapter(Protocol):
         """
         ...
 
-    def get_by_idempotency_key(self, key: str) -> List[EventEnvelope]:
+    def get_by_idempotency_key(self, key: str, tenant: Optional[str] = None, workspace: Optional[str] = None) -> List[EventEnvelope]:
         """
         Retrieve events associated with a specific idempotency key.
         Used for handling duplicate commands (returning original result).
+        
+        Args:
+            key: The idempotency key to search for
+            tenant: Optional tenant filter for multi-tenant isolation
+            workspace: Optional workspace filter for multi-tenant isolation
         """
         ...
 

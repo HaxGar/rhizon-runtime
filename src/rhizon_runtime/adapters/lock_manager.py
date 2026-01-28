@@ -160,6 +160,8 @@ class LockManagerAdapter(AgentRuntimeAdapter):
                  del self.locks[resource_id]
 
     def tick(self, now: int) -> List[EventEnvelope]:
+        # Check for expired locks but DON'T delete them here
+        # State mutation should only happen in apply() for Event Sourcing compliance
         expired_events = []
         
         # Snapshot keys to avoid runtime error during iteration
@@ -187,7 +189,7 @@ class LockManagerAdapter(AgentRuntimeAdapter):
                     security_context={"principal_id": "system", "principal_type": "system"}
                 )
                 expired_events.append(evt)
-                del self.locks[resource_id]
+                # NOTE: Don't delete lock here - let apply() handle it
         
         return expired_events
 

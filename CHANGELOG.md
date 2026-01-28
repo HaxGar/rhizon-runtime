@@ -5,6 +5,48 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.15.2] - 2026-01-28
+
+### 🔧 BUG FIXES
+
+#### **CRITICAL**
+- **Fixed SQLite migration compatibility** - Added automatic schema migration for existing databases
+- **Fixed Event Sourcing violation** - LockManager.tick() no longer mutates state before persistence
+- **Fixed protocol signature mismatch** - Updated EventStoreAdapter.get_by_idempotency_key() signature
+
+#### **TECHNICAL**
+- **Enhanced SQLite compatibility** - Dynamic column detection for backward compatibility
+- **Improved Event Sourcing compliance** - State mutations only in apply() methods
+- **Clean code improvements** - Removed unused imports
+
+### 🏗️ TECHNICAL IMPROVEMENTS
+
+- **Automatic schema migration** - PRAGMA table_info + ALTER TABLE for missing columns
+- **Dynamic SQL generation** - Adapts to both old and new database schemas
+- **Event Sourcing strict compliance** - No state changes outside apply() methods
+- **Protocol consistency** - All implementations now support scoped idempotency
+
+### 🔄 MIGRATION NOTES
+
+- **Existing databases** - Automatically migrated on startup
+- **Backward compatibility** - Full support for v0.15.0 and v0.15.1 databases
+- **No manual intervention** - Schema upgrades handled transparently
+- **Zero downtime** - Migration happens during initialization
+
+### 🧪 TESTING
+
+- **Migration validation** - Tested with both old and new schemas
+- **Event Sourcing compliance** - Verified state mutation patterns
+- **Protocol compatibility** - All implementations support new signature
+
+### 📚 DOCUMENTATION
+
+- **Migration guide** - Added automatic upgrade documentation
+- **Event Sourcing compliance** - Documented state mutation rules
+- **Protocol updates** - Updated interface documentation
+
+---
+
 ## [0.15.1] - 2026-01-28
 
 ### 🔒 SECURITY FIXES
