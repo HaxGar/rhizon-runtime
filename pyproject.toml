@@ -1,6 +1,6 @@
 [project]
 name = "rhizon-runtime"
-version = "0.15.0"
+version = "0.15.1"
 description = "The root of deterministic systems - Event-driven runtime for orchestrating autonomous components"
 readme = "README.md"
 requires-python = ">=3.11"

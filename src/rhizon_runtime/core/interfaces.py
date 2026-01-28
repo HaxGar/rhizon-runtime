@@ -1,6 +1,7 @@
 from typing import Protocol, List, Dict, Any, Optional
+from pydantic import BaseModel, Field
+from dataclasses import field
 from enum import Enum
-from pydantic import BaseModel
 from rhizon_runtime.core.models import EventEnvelope
 
 class HealthStatus(str, Enum):
@@ -14,7 +15,7 @@ class AgentState(BaseModel):
     Must be JSON-serializable and stable.
     """
     version: int
-    entity_versions: Dict[str, int] = {}
+    entity_versions: Dict[str, int] = Field(default_factory=dict)
     data: Dict[str, Any]
     last_processed_event_id: Optional[str] = None
     updated_at: int

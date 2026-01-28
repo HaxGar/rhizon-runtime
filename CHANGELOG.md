@@ -1,22 +1,42 @@
 # Changelog
 
-All notable changes to Rhizon Runtime will be documented in this file.
+All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [0.15.1] - 2026-01-28
 
-### Added
-- Open source release preparation
-- Apache 2.0 licensing
-- Comprehensive documentation
-- Community contribution guidelines
+### 🔒 SECURITY FIXES
 
-### Changed
-- Project structure for open source distribution
-- Documentation organization
-- Development environment setup
+#### **CRITICAL**
+- **Fixed multi-tenant idempotency scoping** - Added tenant/workspace filtering to prevent cross-tenant duplicate detection
+- **Fixed SQLite schema completeness** - Added missing EventEnvelope fields (causation_id, correlation_id, reply_to, entity_id, expected_version, schema_version)
+- **Fixed AgentState mutable default** - Use Field(default_factory=dict) to prevent state pollution between instances
+
+#### **HIGH**
+- **Fixed tick() isolation** - Enforce tenant/workspace scoping on all tick() events to prevent cross-tenant leakage
+- **Fixed LockManager idempotency** - Use same idempotency key as command for proper crash-recovery behavior
+
+#### **MEDIUM**
+- **Fixed violation spam** - Mark original command as processed when scope violation occurs to prevent repeated violation events
+
+### 🏗️ TECHNICAL IMPROVEMENTS
+
+- **Enhanced SQLite persistence** - Complete EventEnvelope serialization with backward compatibility
+- **Improved isolation enforcement** - RuntimeEngine now overrides tenant/workspace on all adapter outputs
+- **Better idempotency handling** - Scoped keys prevent cross-tenant interference
+- **Stronger security boundaries** - Multi-tenant isolation now enforced at all levels
+
+### 🧪 TESTING
+
+- **Updated test expectations** - Tests now validate scoped idempotency and complete EventEnvelope persistence
+- **Enhanced security tests** - Multi-tenant isolation validation across all code paths
+
+### 📚 DOCUMENTATION
+
+- **Updated security model** - Documented multi-tenant isolation guarantees
+- **Enhanced troubleshooting guide** - Added common multi-tenant issues and solutions
 
 ## [0.15.0] - 2026-01-04
 

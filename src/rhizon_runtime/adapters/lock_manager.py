@@ -160,31 +160,34 @@ class LockManagerAdapter(AgentRuntimeAdapter):
                  del self.locks[resource_id]
 
     def tick(self, now: int) -> List[EventEnvelope]:
-        # Check for expired locks
         expired_events = []
         
         # Snapshot keys to avoid runtime error during iteration
         for resource_id, state in list(self.locks.items()):
             if state.expires_at <= now:
-                # Generate expiration event
-                # Note: Tick events are self-generated, so we need a deterministic ID generation strategy if possible.
-                # Ideally, the RuntimeEngine provides a seed or we use the 'now' timestamp.
-                # For V0, using f"evt-expired-{resource_id}-{now}" is decent.
+                # Generate expiration event with proper tenant/workspace context
+                # Note: For system-level locks, we use the engine's tenant/workspace
                 evt = EventEnvelope(
                     id=f"evt-expired-{resource_id}-{now}",
                     ts=now,
                     type="evt.lock.expired",
                     payload={"resource_id": resource_id},
-                    idempotency_key=f"idemp-expired-{resource_id}-{now}",
+                    idempotency_key=f"lock-expired-{resource_id}-{now}",  # Unique key for tick events
                     source={"agent": "lock_manager", "adapter": "default"},
-                    tenant="system", # LockManager is usually system-level or shared
+                    tenant="system",  # LockManager is usually system-level
                     workspace="shared",
                     actor={"id": "system", "role": "lock_manager"},
-                    trace_id="", # New trace?
+                    trace_id="",  # New trace?
                     span_id="",
+                    causation_id=None,
+                    correlation_id=None,
+                    reply_to=None,
+                    entity_id=resource_id,
+                    expected_version=None,
                     security_context={"principal_id": "system", "principal_type": "system"}
                 )
                 expired_events.append(evt)
+                del self.locks[resource_id]
         
         return expired_events
 
@@ -209,7 +212,7 @@ class LockManagerAdapter(AgentRuntimeAdapter):
             ts=cmd.ts,
             type=type,
             payload=payload,
-            idempotency_key=f"idemp-{cmd.id}",
+            idempotency_key=cmd.idempotency_key,  # Use same key as command for proper idempotency
             source={"agent": "lock_manager", "adapter": "default"},
             tenant=cmd.tenant,
             workspace=cmd.workspace,

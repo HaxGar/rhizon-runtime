@@ -95,7 +95,8 @@ class RuntimeEngine:
                 self.adapter.apply(event)
                 # Re-populate idempotency keys so we don't re-process old commands
                 if event.idempotency_key:
-                    self._processed_keys.add(event.idempotency_key)
+                    scoped_key = f"{event.tenant}:{event.workspace}:{event.idempotency_key}"
+                    self._processed_keys.add(scoped_key)
             
             # Debug logging
             print(f"[RuntimeEngine] Recovered {len(events)} events. Processed keys: {len(self._processed_keys)}")
@@ -128,6 +129,10 @@ class RuntimeEngine:
                         if self.store:
                              self.store.append(violation_event)
                         
+                        # Mark the original command as processed to avoid spam
+                        scoped_key = f"{envelope.tenant}:{envelope.workspace}:{envelope.idempotency_key}"
+                        self._processed_keys.add(scoped_key)
+                        
                         # We do NOT publish the violation to the public bus if it's sensitive?
                         # Actually spec says "evt.security.violation" is persisted.
                         # Maybe published to a security stream? For now standard publish.
@@ -141,15 +146,16 @@ class RuntimeEngine:
 
                     # 1. Idempotency Check
                     is_duplicate = False
-                    if envelope.idempotency_key in self._processed_keys:
+                    scoped_key = f"{envelope.tenant}:{envelope.workspace}:{envelope.idempotency_key}"
+                    if scoped_key in self._processed_keys:
                         is_duplicate = True
                     elif self.store:
-                        # Fallback: Check store directly (handle restart/crash scenarios where memory is empty but DB has it)
-                        stored_events = self.store.get_by_idempotency_key(envelope.idempotency_key)
+                        # Fallback: Check store directly with tenant/workspace scoping
+                        stored_events = self.store.get_by_idempotency_key(envelope.idempotency_key, envelope.tenant, envelope.workspace)
                         if stored_events:
                             is_duplicate = True
-                            # Populate memory cache
-                            self._processed_keys.add(envelope.idempotency_key)
+                            # Populate memory cache with scoped key
+                            self._processed_keys.add(scoped_key)
 
                     if is_duplicate:
                         print(f"[RuntimeEngine] Duplicate Key: {envelope.idempotency_key}")
@@ -159,7 +165,7 @@ class RuntimeEngine:
                         # Duplicate detected
                         # If we have a store, try to return the original result
                         if self.store:
-                            original_events = self.store.get_by_idempotency_key(envelope.idempotency_key)
+                            original_events = self.store.get_by_idempotency_key(envelope.idempotency_key, envelope.tenant, envelope.workspace)
                             if original_events:
                                 # CRITICAL: At-Least-Once Delivery
                                 # If we crashed after Store but before Publish last time, these events might not have been sent.
@@ -216,9 +222,9 @@ class RuntimeEngine:
                             # Publish the conflict event so the caller knows
                             with self.tracer.start_as_current_span("bus.publish_conflict"):
                                 await self.bus.publish([conflict_event])
-                                
+                                 
                             # Mark as processed so we don't retry and succeed later
-                            self._processed_keys.add(envelope.idempotency_key)
+                            self._processed_keys.add(scoped_key)
                             
                             span.set_attribute("concurrency.conflict", True)
                             return [conflict_event]
@@ -283,7 +289,7 @@ class RuntimeEngine:
                                 span_route.set_attribute("route.count", len(commands_to_route))
         
                     # 4. Mark processed (Command Idempotency)
-                    self._processed_keys.add(envelope.idempotency_key)
+                    self._processed_keys.add(scoped_key)
                     
                     duration = self._get_time_ms() - start_time
                     self.metrics["event_processing_duration_ms"] += duration
@@ -354,13 +360,19 @@ class RuntimeEngine:
 
     async def tick(self):
         """
-        Trigger time-based logic.
+        Trigger time-based logic with strict tenant/workspace isolation.
         """
         async with self._lock:
             now = self._get_time_ms()
             output_events = self.adapter.tick(now)
             
             if output_events:
+                # Phase 0.15.1: Enforce tenant/workspace isolation on tick() events
+                for evt in output_events:
+                    # Override any tenant/workspace set by adapter to ensure isolation
+                    evt.tenant = self.tenant
+                    evt.workspace = self.workspace
+                
                 if self.store:
                     self.store.append_batch(output_events)
                 
