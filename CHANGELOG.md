@@ -5,6 +5,48 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.15.3] - 2026-01-30
+
+### 🔧 FINAL BUG FIXES
+
+#### **CRITICAL**
+- **Fixed security violation de-duplication** - Now uses original command idempotency key for proper cross-restart de-duplication
+- **Fixed SQLite NULL handling** - Safe JSON loading prevents TypeError on migrated databases with NULL values
+
+#### **TECHNICAL**
+- **Enhanced migration robustness** - NULL values from old schemas handled gracefully
+- **Improved security audit** - Violation events now properly de-duplicated across restarts
+- **Better error resilience** - Safe JSON parsing with fallbacks for corrupted data
+
+### 🏗️ TECHNICAL IMPROVEMENTS
+
+- **Cross-restart consistency** - Security violations now properly tracked across engine restarts
+- **Migration compatibility** - Zero-downtime migration handles NULL values seamlessly
+- **Safe data handling** - All JSON parsing now handles NULL and corrupted data gracefully
+- **Audit completeness** - Security violation logs are now consistent and deduplicated
+
+### 🔄 MIGRATION NOTES
+
+- **NULL value handling** - Migrated databases with NULL columns now work perfectly
+- **Security audit consistency** - Violation events use original command keys for proper tracking
+- **Backward compatibility** - Full support for all previous database schemas
+- **Zero data loss** - All existing data preserved during migration
+
+### 🧪 TESTING
+
+- **NULL handling validation** - Tested with databases containing NULL values
+- **Security de-duplication** - Verified violation tracking across restarts
+- **Migration robustness** - Tested with various schema versions
+- **Error resilience** - Validated safe JSON parsing with corrupted data
+
+### 📚 DOCUMENTATION
+
+- **Migration guide updated** - Added NULL value handling instructions
+- **Security audit documentation** - Documented violation de-duplication behavior
+- **Error handling guide** - Added safe JSON parsing documentation
+
+---
+
 ## [0.15.2] - 2026-01-28
 
 ### 🔧 BUG FIXES

@@ -207,8 +207,21 @@ class SQLiteEventStore(EventStoreAdapter):
         # Extract values with fallbacks for missing columns
         def get_col(col_name, default=None):
             if col_name in column_map:
-                return row[column_map[col_name]]
+                value = row[column_map[col_name]]
+                # Handle NULL values for migrated databases
+                if value is None:
+                    return default
+                return value
             return default
+        
+        # Safe JSON loading with NULL handling
+        def safe_json_load(json_str, default):
+            if json_str is None:
+                return default
+            try:
+                return json.loads(json_str)
+            except (json.JSONDecodeError, TypeError):
+                return default
         
         return EventEnvelope(
             id=get_col('id'),
@@ -219,16 +232,16 @@ class SQLiteEventStore(EventStoreAdapter):
             span_id=get_col('span_id'),
             tenant=get_col('tenant'),
             workspace=get_col('workspace'),
-            actor=json.loads(get_col('actor_json', '{}')),
-            payload=json.loads(get_col('payload_json', '{}')),
+            actor=safe_json_load(get_col('actor_json'), {}),
+            payload=safe_json_load(get_col('payload_json'), {}),
             idempotency_key=get_col('idempotency_key'),
-            source=json.loads(get_col('source_json', '{}')),
+            source=safe_json_load(get_col('source_json'), {}),
             causation_id=get_col('causation_id'),
             correlation_id=get_col('correlation_id'),
             reply_to=get_col('reply_to'),
             entity_id=get_col('entity_id'),
             expected_version=get_col('expected_version'),
-            security_context=json.loads(get_col('security_context_json', '{"principal_id": "unknown", "principal_type": "system"}'))
+            security_context=safe_json_load(get_col('security_context_json'), {"principal_id": "unknown", "principal_type": "system"})
         )
 
     def close(self):

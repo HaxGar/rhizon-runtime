@@ -331,33 +331,6 @@ class RuntimeEngine:
             security_context=cmd.security_context
         )
 
-    def _create_security_violation_event(self, cmd: EventEnvelope, reason: str) -> EventEnvelope:
-        """
-        Helper to create a security violation event.
-        """
-        return EventEnvelope(
-            id=f"evt-{cmd.id}-security",
-            ts=self._get_time_ms(),
-            type="evt.security.violation",
-            payload={
-                "violation": reason,
-                "attempted_tenant": cmd.tenant,
-                "attempted_workspace": cmd.workspace,
-                "engine_tenant": self.tenant,
-                "engine_workspace": self.workspace
-            },
-            idempotency_key=f"idemp-{cmd.id}-security", # New key to avoid collision if retried
-            source={"agent": self.agent_id, "adapter": "runtime"},
-            tenant=self.tenant, # Record in OUR tenant (audit log) or system?
-            workspace=self.workspace,
-            actor=cmd.actor,
-            trace_id=cmd.trace_id,
-            span_id=cmd.span_id,
-            causation_id=cmd.id,
-            correlation_id=cmd.correlation_id,
-            security_context=cmd.security_context # Preserve who tried it
-        )
-
     async def tick(self):
         """
         Trigger time-based logic with strict tenant/workspace isolation.
